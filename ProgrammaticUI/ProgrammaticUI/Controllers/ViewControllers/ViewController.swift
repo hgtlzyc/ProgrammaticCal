@@ -10,7 +10,7 @@ import UIKit
 class ViewController: UIViewController {
     
     //Views
-    private lazy var textInputField: UITextField = {
+    private lazy var baseNumInputField: UITextField = {
         let txField = UITextField()
         txField.keyboardType = .numberPad
         txField.textAlignment = .center
@@ -21,29 +21,18 @@ class ViewController: UIViewController {
         return txField
     }()
     
-    private lazy var showMoreButton: UIButton = {
-        let showMoreBtn = UIButton()
-        showMoreBtn.tag = -1
-        showMoreBtn.backgroundColor = .red
-        showMoreBtn.layer.cornerRadius = buttonsCornerRadius
-        showMoreBtn.setTitle("Show More", for: .normal)
-        
-        showMoreBtn.addTarget(self, action: #selector(handlePercentButtonTapped), for: .touchUpInside)
-        
-        return showMoreBtn
-    }()
-    
     private lazy var outputLabel: UILabel = {
         let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
         label.textColor = UIColor.blue
-        label.backgroundColor = .red
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 28)
+        
         return label
     }()
     
     
     //Properties
-    let percentOptions: [Int] = [5, 10, 15]
+    let percentOptions: [Int] = [5, 10, 15, 20, 25]
     
     var buttonsStackView: UIStackView?
     
@@ -71,13 +60,13 @@ class ViewController: UIViewController {
         )
         
         //input
-        view.addSubview(textInputField)
-        textInputField.setDimensions(
+        view.addSubview(baseNumInputField)
+        baseNumInputField.setDimensions(
             height: view.frame.height * 0.06,
             width: view.frame.width * 0.5
         )
-        textInputField.centerX(inView: view)
-        textInputField.anchor(bottom: buttonsStackView.topAnchor, paddingBottom: 15)
+        baseNumInputField.centerX(inView: view)
+        baseNumInputField.anchor(bottom: buttonsStackView.topAnchor, paddingBottom: 15)
         
         //result
         view.addSubview(outputLabel)
@@ -104,14 +93,12 @@ class ViewController: UIViewController {
             
             //visual
             btn.layer.cornerRadius = buttonsCornerRadius
-            btn.alpha = 0.5 + 0.3 * CGFloat(index) / CGFloat(buttonNums.count - 1)
+            btn.alpha = 0.5 + 0.4 * CGFloat(index) / CGFloat(buttonNums.count - 1)
             
             return btn
         }///End of  buttons
         
-        let finalButtons = percentButtons + [showMoreButton]
-        
-        let stackView = UIStackView(arrangedSubviews: finalButtons)
+        let stackView = UIStackView(arrangedSubviews: percentButtons)
         stackView.axis = .vertical
         stackView.alignment = .fill
         stackView.spacing = 5
@@ -123,20 +110,10 @@ class ViewController: UIViewController {
     
     // MARK: - Handle percent button tapped
     @objc func handlePercentButtonTapped(_ sender: UIButton) {
-
-        UIView.animate(withDuration: 0.3) {
-            self.buttonsStackView?.alpha = 0
-        } completion: { _ in
-            
-            
-            UIView.animate(withDuration: 0.3) {
-                buttonsStackView.alpha = 1
-            }completion: { _ in
-                buttonsStackView.alpha = 1
-                self.buttonsStackView = self.buttonsStackViewGenerator([10])
-            }
-            
-        }///End of  first anim completion
+        guard let inputNum = Double(baseNumInputField.text ?? "") else { return }
+        let tipsAmount = (Double(sender.tag) / 100.0) * inputNum
+        
+        outputLabel.text = "💳 $" + String(format: "%.2f", (inputNum + tipsAmount))
         
     }///End of  handlePercentButtonTapped
 
